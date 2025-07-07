@@ -36,7 +36,7 @@ This is a simple and modern tool to help you easily generate or extend a `config
 
 1. **Clone or download the repository**
    ```bash
-   git clone https://github.com/yourusername/config-tool-v2.git
+   git clone https://github.com/crossnite/Pterodactyl-config-tool.git
    cd config-tool-v2
    ```
    
