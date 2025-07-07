@@ -1,0 +1,58 @@
+{
+  "name": "config-tool-v2",
+  "version": "1.0.0",
+  "description": "A clean config tool with a modern design",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "build": "electron-builder",
+    "dist": "electron-builder --publish=never"
+  },
+  "keywords": [
+    "electron",
+    "config",
+    "tool"
+  ],
+  "author": "crossnite",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1"
+  },
+  "dependencies": {
+    "framer-motion": "^10.16.4",
+    "js-yaml": "^4.1.0"
+  },
+  "build": {
+    "appId": "de.horizonnova.configtoolv2",
+    "productName": "ConfigToolV2",
+    "artifactName": "ConfigToolV2-Setup.${ext}",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "**/*",
+      "!dist/**/*",
+      "!.git/**/*"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "app_icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Config Tool V2"
+    }
+  }
+}

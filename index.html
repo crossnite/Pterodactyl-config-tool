@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Config Tool V2</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.85), rgba(20, 20, 20, 0.9));
+            color: white;
+            overflow: hidden;
+            height: 100vh;
+            backdrop-filter: blur(20px);
+        }
+
+        .titlebar {
+            height: 32px;
+            background: rgba(255, 255, 255, 0.12);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            -webkit-app-region: drag;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .titlebar-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .titlebar-controls {
+            display: flex;
+            gap: 8px;
+            -webkit-app-region: no-drag;
+        }
+
+        .titlebar-button {
+            width: 24px;
+            height: 24px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .titlebar-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .titlebar-button.close:hover {
+            background: #ff4757;
+        }
+
+        .main-container {
+            display: flex;
+            height: calc(100vh - 32px);
+        }
+
+        .sidebar {
+            width: 240px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(15px);
+            border-right: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 20px 0;
+            animation: slideInLeft 0.5s ease-out;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .sidebar-logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .sidebar-logo-text {
+            font-size: 16px;
+            font-weight: 600;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .sidebar-version {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .sidebar-nav {
+            padding: 0 20px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            transform: translateX(4px);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+            color: white;
+            border-left: 3px solid #667eea;
+        }
+
+        .nav-item-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .nav-item-text {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            animation: fadeIn 0.5s ease-out 0.2s both;
+        }
+
+        .content-section {
+            display: none;
+            animation: fadeInUp 0.3s ease-out;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .section-header {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-subtitle {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: white;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .button {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+        }
+
+        .button:active {
+            transform: translateY(0);
+        }
+
+        .button.secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .button.secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 16px rgba(255, 255, 255, 0.1);
+        }
+
+        .output-path {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .path-display {
+            flex: 1;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.8);
+            word-break: break-all;
+        }
+
+        .discord-card {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .discord-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .discord-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #7289da;
+        }
+
+        .discord-description {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="titlebar">
+        <div class="titlebar-title">Config Tool V2</div>
+        <div class="titlebar-controls">
+            <button class="titlebar-button" id="minimizeBtn">─</button>
+            <button class="titlebar-button" id="maximizeBtn">□</button>
+            <button class="titlebar-button close" id="closeBtn">×</button>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <div class="sidebar-logo-icon">⚙️</div>
+                    <div class="sidebar-logo-text">Config Tool</div>
+                </div>
+                <div class="sidebar-version">v2.0.0</div>
+            </div>
+            
+            <div class="sidebar-nav">
+                <div class="nav-item active" data-section="generator">
+                    <div class="nav-item-icon">🔧</div>
+                    <div class="nav-item-text">Generator</div>
+                </div>
+                <div class="nav-item" data-section="settings">
+                    <div class="nav-item-icon">⚙️</div>
+                    <div class="nav-item-text">Settings</div>
+                </div>
+                <div class="nav-item" data-section="discord">
+                    <div class="nav-item-icon">💬</div>
+                    <div class="nav-item-text">Discord</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <!-- Generator Section -->
+            <div class="content-section active" id="generator">
+                <div class="section-header">
+                    <h1 class="section-title">YAML Config Tool</h1>
+                    <p class="section-subtitle">Generate and manage your YAML configuration files</p>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">Input Method</h3>
+                    <div class="form-group">
+                        <label class="form-label">Choose how to input your YAML configuration:</label>
+                        <div style="display: flex; gap: 12px; margin-top: 12px;">
+                            <button class="button secondary" id="browseFileBtn">
+                                📁 Browse YAML File
+                            </button>
+                            <button class="button secondary" id="pasteClipboardBtn">
+                                📋 Paste from Clipboard
+                            </button>
+                        </div>
+                        <div class="output-path" id="filePath" style="display: none; margin-top: 12px;">
+                            <div class="path-display" id="filePathDisplay"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">Configuration Options</h3>
+                    <div class="form-group">
+                        <label class="form-label">Preferred Network Number (20-29, leave blank for random):</label>
+                        <input type="number" class="form-input" id="networkNumber" placeholder="Enter number between 20-29" min="20" max="29">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Output Directory:</label>
+                        <button class="button secondary" id="selectOutputBtn">
+                            📁 Select Output Directory
+                        </button>
+                        <div class="output-path" id="outputPath" style="display: none; margin-top: 12px;">
+                            <div class="path-display" id="pathDisplay"></div>
+                        </div>
+                    </div>
+                    <button class="button" id="generateBtn">
+                        🚀 Generate YAML Config
+                    </button>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">Status</h3>
+                    <div id="statusDisplay" style="color: rgba(255, 255, 255, 0.7); font-size: 14px;">
+                        Ready to generate configuration...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Section -->
+            <div class="content-section" id="settings">
+                <div class="section-header">
+                    <h1 class="section-title">Settings</h1>
+                    <p class="section-subtitle">Customize your application preferences</p>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">Application Settings</h3>
+                    <div class="form-group">
+                        <label class="form-label">Theme:</label>
+                        <select class="form-input" id="theme">
+                            <option value="dark">Dark</option>
+                            <option value="light">Light</option>
+                            <option value="auto">Auto</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Transparency Level:</label>
+                        <select class="form-input" id="transparency">
+                            <option value="none">Grey</option>
+                            <option value="low">Low (Subtle)</option>
+                            <option value="medium" selected>Dark - Transparent</option>
+                            <option value="high">Darker (More Transparent)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Blur Intensity:</label>
+                        <select class="form-input" id="blurIntensity">
+                            <option value="light">Light (8px)</option>
+                            <option value="medium" selected>Medium (12px)</option>
+                            <option value="strong">Strong (20px)</option>
+                        </select>
+                    </div>
+                    <button class="button secondary" id="saveSettingsBtn">
+                        💾 Save Settings
+                    </button>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">About</h3>
+                    <p style="color: rgba(255, 255, 255, 0.7); line-height: 1.6;">
+                        This is a simple and modern tool to help you easily generate or extend a config.yml file for Pterodactyl.
+
+It was built to work with My Tutorial and designed to simplify the process of preparing your server config — especially when setting up the daemon or reconfiguring it manually.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Discord Section -->
+            <div class="content-section" id="discord">
+                <div class="section-header">
+                    <h1 class="section-title">Discord</h1>
+                    <p class="section-subtitle">Connect with our community</p>
+                </div>
+
+                <div class="card discord-card">
+                    <div class="discord-icon">💬</div>
+                    <h3 class="discord-title">Join Our Discord</h3>
+                    <p class="discord-description">
+                        Connect with other users, get support, and stay updated with the latest features and announcements.
+                    </p>
+                    <button class="button" id="joinDiscordBtn">
+                        🎮 Join Discord Server
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { ipcRenderer } = require('electron');
+
+        // Navigation
+        const navItems = document.querySelectorAll('.nav-item');
+        const contentSections = document.querySelectorAll('.content-section');
+
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const targetSection = item.getAttribute('data-section');
+                
+                // Update active nav item
+                navItems.forEach(nav => nav.classList.remove('active'));
+                item.classList.add('active');
+                
+                // Update active content section
+                contentSections.forEach(section => {
+                    section.classList.remove('active');
+                    if (section.id === targetSection) {
+                        section.classList.add('active');
+                    }
+                });
+            });
+        });
+
+        // Titlebar controls
+        document.getElementById('minimizeBtn').addEventListener('click', () => {
+            ipcRenderer.invoke('minimize-window');
+        });
+
+        document.getElementById('maximizeBtn').addEventListener('click', () => {
+            ipcRenderer.invoke('maximize-window');
+        });
+
+        document.getElementById('closeBtn').addEventListener('click', () => {
+            ipcRenderer.invoke('close-window');
+        });
+
+        // File browsing
+        document.getElementById('browseFileBtn').addEventListener('click', async () => {
+            const result = await ipcRenderer.invoke('browse-yaml-file');
+            if (result) {
+                document.getElementById('filePathDisplay').textContent = result;
+                document.getElementById('filePath').style.display = 'flex';
+                document.getElementById('statusDisplay').textContent = `Selected file: ${result.split('/').pop()}`;
+                document.getElementById('statusDisplay').style.color = 'rgba(255, 255, 255, 0.8)';
+            }
+        });
+
+        // Paste from clipboard
+        document.getElementById('pasteClipboardBtn').addEventListener('click', async () => {
+            try {
+                const clipboardText = await navigator.clipboard.readText();
+                // Basic YAML validation
+                if (clipboardText.trim()) {
+                    window.pastedConfig = clipboardText;
+                    document.getElementById('statusDisplay').textContent = '✅ YAML config pasted from clipboard successfully.';
+                    document.getElementById('statusDisplay').style.color = '#4ade80';
+                } else {
+                    document.getElementById('statusDisplay').textContent = '❌ Clipboard is empty or invalid YAML.';
+                    document.getElementById('statusDisplay').style.color = '#f87171';
+                }
+            } catch (error) {
+                document.getElementById('statusDisplay').textContent = '❌ Failed to read clipboard. Please paste manually.';
+                document.getElementById('statusDisplay').style.color = '#f87171';
+            }
+        });
+
+        // Output directory selection
+        document.getElementById('selectOutputBtn').addEventListener('click', async () => {
+            const result = await ipcRenderer.invoke('select-output-directory');
+            if (result) {
+                document.getElementById('pathDisplay').textContent = result;
+                document.getElementById('outputPath').style.display = 'flex';
+            }
+        });
+
+        // Generate YAML configuration
+        document.getElementById('generateBtn').addEventListener('click', async () => {
+            const filePath = document.getElementById('filePathDisplay').textContent;
+            const pastedConfig = window.pastedConfig;
+            const networkNumber = parseInt(document.getElementById('networkNumber').value);
+            const outputDirectory = document.getElementById('pathDisplay').textContent;
+            
+            if (!filePath && !pastedConfig) {
+                document.getElementById('statusDisplay').textContent = '❌ Please select a YAML file or paste YAML from clipboard.';
+                document.getElementById('statusDisplay').style.color = '#f87171';
+                return;
+            }
+            
+            const btn = document.getElementById('generateBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '⏳ Generating...';
+            btn.disabled = true;
+            
+            try {
+                const result = await ipcRenderer.invoke('generate-yaml-config', {
+                    filePath: filePath || null,
+                    pastedConfig: pastedConfig || null,
+                    networkNumber: networkNumber,
+                    outputDirectory: outputDirectory || null
+                });
+                
+                if (result.success) {
+                    document.getElementById('statusDisplay').textContent = `✅ Config generated successfully! Saved to: ${result.outputPath}`;
+                    document.getElementById('statusDisplay').style.color = '#4ade80';
+                    btn.innerHTML = '✅ Generated!';
+                } else {
+                    document.getElementById('statusDisplay').textContent = `❌ Error: ${result.error}`;
+                    document.getElementById('statusDisplay').style.color = '#f87171';
+                    btn.innerHTML = originalText;
+                }
+            } catch (error) {
+                document.getElementById('statusDisplay').textContent = `❌ Error: ${error.message}`;
+                document.getElementById('statusDisplay').style.color = '#f87171';
+                btn.innerHTML = originalText;
+            }
+            
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }, 3000);
+        });
+
+        // Save settings
+        document.getElementById('saveSettingsBtn').addEventListener('click', () => {
+            const theme = document.getElementById('theme').value;
+            const transparency = document.getElementById('transparency').value;
+            const blurIntensity = document.getElementById('blurIntensity').value;
+            
+            // Apply transparency settings
+            applyTransparencySettings(transparency, blurIntensity);
+            
+            const btn = document.getElementById('saveSettingsBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '💾 Saved!';
+            
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+            }, 2000);
+        });
+
+        // Apply transparency settings function
+        function applyTransparencySettings(transparency, blurIntensity) {
+            const root = document.documentElement;
+            let cardOpacity, borderOpacity, sidebarOpacity, titlebarOpacity, blurAmount;
+            
+            // Set transparency levels
+            switch(transparency) {
+                case 'none':
+                    cardOpacity = '0.15';
+                    borderOpacity = '0.2';
+                    sidebarOpacity = '0.15';
+                    titlebarOpacity = '0.2';
+                    break;
+                case 'low':
+                    cardOpacity = '0.12';
+                    borderOpacity = '0.18';
+                    sidebarOpacity = '0.12';
+                    titlebarOpacity = '0.18';
+                    break;
+                case 'medium':
+                    cardOpacity = '0.08';
+                    borderOpacity = '0.12';
+                    sidebarOpacity = '0.08';
+                    titlebarOpacity = '0.12';
+                    break;
+                case 'high':
+                    cardOpacity = '0.05';
+                    borderOpacity = '0.08';
+                    sidebarOpacity = '0.05';
+                    titlebarOpacity = '0.08';
+                    break;
+            }
+            
+            // Set blur intensity
+            switch(blurIntensity) {
+                case 'light':
+                    blurAmount = '8px';
+                    break;
+                case 'medium':
+                    blurAmount = '12px';
+                    break;
+                case 'strong':
+                    blurAmount = '20px';
+                    break;
+            }
+            
+            // Apply styles
+            root.style.setProperty('--card-opacity', cardOpacity);
+            root.style.setProperty('--border-opacity', borderOpacity);
+            root.style.setProperty('--sidebar-opacity', sidebarOpacity);
+            root.style.setProperty('--titlebar-opacity', titlebarOpacity);
+            root.style.setProperty('--blur-amount', blurAmount);
+            
+            // Update existing elements
+            document.querySelectorAll('.card').forEach(card => {
+                card.style.background = `rgba(255, 255, 255, ${cardOpacity})`;
+                card.style.borderColor = `rgba(255, 255, 255, ${borderOpacity})`;
+            });
+            
+            document.querySelector('.sidebar').style.background = `rgba(255, 255, 255, ${sidebarOpacity})`;
+            document.querySelector('.sidebar').style.borderColor = `rgba(255, 255, 255, ${borderOpacity})`;
+            
+            document.querySelector('.titlebar').style.background = `rgba(255, 255, 255, ${titlebarOpacity})`;
+            document.querySelector('.titlebar').style.borderColor = `rgba(255, 255, 255, ${borderOpacity})`;
+            
+            // Update backdrop filters
+            document.querySelectorAll('.card, .sidebar, .titlebar').forEach(el => {
+                el.style.backdropFilter = `blur(${blurAmount})`;
+            });
+        }
+
+        document.getElementById('joinDiscordBtn').addEventListener('click', () => {
+            require('electron').shell.openExternal('https://discord.gg/aqfm8T5U2t ');
+        });
+    </script>
+</body>
+</html> 
