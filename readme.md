@@ -194,7 +194,7 @@ config-tool-v2/
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](https://github.com/crossnite/Pterodactyl-config-tool/tree/v1.0.0?tab=License-1-ov-file) file for details.
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/crossnite/Pterodactyl-config-tool/tree/main?tab=License-1-ov-file) file for details.
 
 ## 🙏 Acknowledgments
 
