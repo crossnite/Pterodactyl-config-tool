@@ -21,7 +21,7 @@ This is a simple and modern tool to help you easily generate or extend a `config
 
 ### Option 1: Download Pre-built Executable (Recommended)
 
-1. Download the latest release from the [Releases page](https://github.com/crossnite/Pterodactyl-config-tool/releases/tag/v1.0.0)
+1. Download the latest release from the [Releases page]([https://github.com/crossnite/Pterodactyl-config-tool/releases/tag/v1.0.0](https://github.com/crossnite/Pterodactyl-config-tool/releases))
 2. Run the installer and follow the setup wizard
 3. Launch the application from your desktop or start menu
 
